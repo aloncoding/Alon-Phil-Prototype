@@ -1,0 +1,140 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cf5c92653a09c1a4aa9d66d5653cd9d3, type: 3}
+  m_Name: GameConfig
+  m_EditorClassIdentifier: Assembly-CSharp::GameConfig
+  player:
+    moveSpeed: 10
+    groundAccel: 80
+    groundDecel: 90
+    airAccel: 50
+    airDecel: 22
+    jumpVelocity: 16
+    gravityScale: 3
+    fallMultiplier: 1.3
+    coyoteTime: 0.1
+    jumpBufferTime: 0.12
+    jumpCutMultiplier: 0.5
+    maxFallSpeed: 28
+    stompBounce: 15
+    stompBounceHeld: 19
+    stompGraceTime: 0.15
+    hookStompHorizontalKeep: 0.5
+    maxHealth: 3
+    invulnerableTime: 1.3
+    hurtBounceSpeed: 9
+    hurtHorizontalKeep: 0.5
+    tintByHealth: 1
+    lowHealthTint: {r: 1, g: 0.5, b: 0.5, a: 1}
+    colliderSize: {x: 0.7, y: 1.4}
+  hook:
+    range: 6
+    aimRadius: 0.45
+    cooldown: 0.12
+    pullSpeed: 28
+    pullAccel: 170
+    startSpeedMin: 8
+    maxPullTime: 1.6
+    enemyStopDistance: 0.35
+    platformStopDistance: 0.12
+    platformEaseFactor: 12
+    platformAnchorHeight: 0.75
+    platformExitSpeedKeep: 0.3
+    releaseSpeedKeep: 0.8
+    jumpOffBoost: 12
+    ropeWidth: 0.09
+    ropeColor: {r: 0.97, g: 0.86, b: 0.5, a: 1}
+  enemies:
+    crawlerSpeed: 1.6
+    crawlerEdgeMargin: 0.8
+    floaterBobX: 1
+    floaterBobXSpeed: 1.3
+    floaterBobY: 0.4
+    floaterBobYSpeed: 2
+    animFps: 6
+    killBurstCount: 16
+  world:
+    shaftWidth: 24
+    platformThickness: 1
+    safeStartHeight: 8
+    rowGapMin: 2.8
+    rowGapMax: 5.8
+    difficultyRampHeight: 600
+    platformWidthStart: 4.5
+    platformWidthEnd: 2.2
+    minPlatformWidth: 1.8
+    widthJitterMin: 0.85
+    widthJitterMax: 1.2
+    pairWidthFactor: 0.75
+    horizontalShift: 9
+    rowSingleWeight: 0.42
+    rowPairWeight: 0.2
+    rowFloaterStepWeight: 0.2
+    platformSkipChance: 0.3
+    maxConsecutiveSkips: 1
+    skippedRowFloaterChance: 0.7
+    crawlerChanceStart: 0.2
+    crawlerChanceEnd: 0.55
+    crawlerMinPlatformWidth: 2.6
+    floaterAboveChanceStart: 0.2
+    floaterAboveChanceEnd: 0.4
+    stretchEnabled: 1
+    stretchMinHeight: 25
+    stretchChancePerRow: 0.15
+    stretchCooldownRows: 5
+    stretchMinRows: 4
+    stretchMaxRows: 8
+    stretchGapMin: 2.4
+    stretchGapMax: 3.4
+    stretchFloatersMin: 1
+    stretchFloatersMax: 2
+    stretchHorizontalRange: 8
+    stretchEndsWithPlatform: 1
+    generateAhead: 20
+    cleanupBelow: 15
+  cam:
+    orthoSize: 9
+    playerScreenHeight: 0.45
+    followSmooth: 6
+    followSmoothDown: 12
+    verticalDeadZone: 2.5
+    canDescend: 1
+    offscreenKillMargin: 1
+  lava:
+    startY: -6
+    startAfterHeight: 2
+    speedStart: 1.2
+    speedEnd: 4.5
+    speedRampHeight: 500
+    leadSoftCap: 25
+    catchUpFactor: 0.5
+    killOffset: 0.3
+  flow:
+    restartDelay: 2
+    hurtShake: 0.3
+    stompShake: 0.12
+    deathShake: 0.5
+    bonusPerStompCombo: 25
+  audio:
+    masterVolume: 1
+    sfxVolume: 1
+    musicVolume: 0.35
+    musicBpm: 140
+    musicPitchBoostAtMaxHeight: 0.18
+    stompPitchPerCombo: 0.06
+    bellPitchPerCombo: 0.12
+  visuals:
+    backgroundColor: {r: 0.12, g: 0.08, b: 0.3, a: 1}
+    skyHighTint: {r: 0.3, g: 0.35, b: 0.7, a: 1}
+    skyDarkenHeight: 450
+    starsStartFraction: 0.1
+    wallTint: {r: 0.6, g: 0.6, b: 0.8, a: 1}
