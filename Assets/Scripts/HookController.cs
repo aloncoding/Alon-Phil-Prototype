@@ -15,7 +15,7 @@ public class HookController : MonoBehaviour
     PlayerClimber player;
     Rigidbody2D rb;
     LineRenderer rope;
-    SpriteRenderer head;
+    SpriteRenderer head, aimCue;
     Camera cam;
 
     Vector2 anchor, ropeEnd, missEnd;
@@ -45,6 +45,15 @@ public class HookController : MonoBehaviour
         head.sharedMaterial = ArtLibrary.SpriteMat;
         head.sortingOrder = 9;
         head.enabled = false;
+
+        // The held and fired hook share one claw sprite.
+        var ag = new GameObject("HookAim");
+        ag.transform.SetParent(transform, false);
+        aimCue = ag.AddComponent<SpriteRenderer>();
+        aimCue.sprite = ArtLibrary.HookHead;
+        aimCue.sharedMaterial = ArtLibrary.SpriteMat;
+        aimCue.sortingOrder = 11;
+        aimCue.enabled = false;
     }
 
     void Update()
@@ -64,13 +73,19 @@ public class HookController : MonoBehaviour
         }
     }
 
-    void TryFire()
+    Vector2 AimDirection(Vector2 origin)
     {
         if (cam == null) cam = Camera.main;
-        Vector2 o = Origin;
-        Vector2 aim = GameInput.AimWorld(cam) - o;
+        if (cam == null) return Vector2.up;
+        Vector2 aim = GameInput.AimWorld(cam) - origin;
         if (aim.sqrMagnitude < 0.04f) aim = Vector2.up;
-        Vector2 dir = aim.normalized;
+        return aim.normalized;
+    }
+
+    void TryFire()
+    {
+        Vector2 o = Origin;
+        Vector2 dir = AimDirection(o);
 
         SoundManager.Play(Sfx.HookFire, 0.8f);
 
@@ -187,6 +202,12 @@ public class HookController : MonoBehaviour
     void LateUpdate()
     {
         Vector2 o = Origin;
+        aimCue.enabled = !player.Dead && !IsHooked && missT <= 0f;
+        if (aimCue.enabled)
+        {
+            aimCue.transform.position = new Vector3(o.x, o.y, 0f);
+            aimCue.transform.right = AimDirection(o);
+        }
         if (IsHooked)
         {
             Vector2 end = TargetEnemy != null ? TargetEnemy.HeadPoint : ropeEnd;
@@ -204,16 +225,28 @@ public class HookController : MonoBehaviour
         }
     }
 
+    void OnDisable()
+    {
+        if (aimCue != null) aimCue.enabled = false;
+    }
+
     void DrawRope(Vector2 a, Vector2 b)
     {
         rope.enabled = true;
         rope.startWidth = rope.endWidth = H.ropeWidth;
         rope.startColor = rope.endColor = H.ropeColor;
-        rope.SetPosition(0, new Vector3(a.x, a.y, 0f));
-        rope.SetPosition(1, new Vector3(b.x, b.y, 0f));
-        head.enabled = true;
-        head.transform.position = new Vector3(b.x, b.y, 0f);
         Vector2 d = b - a;
-        if (d.sqrMagnitude > 0.001f) head.transform.right = d.normalized;
+        head.enabled = d.sqrMagnitude > 0.001f;
+        Vector2 clawBase = b;
+        if (head.enabled)
+        {
+            Vector2 dir = d.normalized;
+            // Only the artwork is offset; the actual hit point and pull target stay unchanged.
+            clawBase = b - dir * Mathf.Min(ArtLibrary.HookTipOffset, d.magnitude);
+            head.transform.right = dir;
+            head.transform.position = new Vector3(clawBase.x, clawBase.y, 0f);
+        }
+        rope.SetPosition(0, new Vector3(a.x, a.y, 0f));
+        rope.SetPosition(1, new Vector3(clawBase.x, clawBase.y, 0f));
     }
 }

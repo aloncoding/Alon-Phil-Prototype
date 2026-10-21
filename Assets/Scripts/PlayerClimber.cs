@@ -7,6 +7,7 @@ using UnityEngine;
 public class PlayerClimber : MonoBehaviour
 {
     public int Health { get; private set; }
+    public int MaxHealth { get; private set; }
     public int Combo { get; private set; }
     public bool Dead { get; private set; }
     public float StartY { get; set; }
@@ -23,6 +24,7 @@ public class PlayerClimber : MonoBehaviour
     SpriteRenderer sr;
     Transform visual;
     HookController hook;
+    BodyHealthVisual bodyHealth;
 
     float coyoteT, bufferT, invulnT, stompGrace, fallSpeed;
     bool grounded, wasGrounded, jumpHeld;
@@ -52,14 +54,17 @@ public class PlayerClimber : MonoBehaviour
         sr.sortingOrder = 10;
         sr.sprite = ArtLibrary.PlayerRun[0];
 
-        Health = P.maxHealth;
+        MaxHealth = Mathf.Max(1, P.maxHealth);
+        Health = MaxHealth;
+        bodyHealth = gameObject.AddComponent<BodyHealthVisual>();
+        bodyHealth.Init(this, sr, visual);
         hook = gameObject.AddComponent<HookController>();
         hook.Init(this);
     }
 
     void Update()
     {
-        if (Dead) { sr.enabled = true; return; }
+        if (Dead) { bodyHealth.SetFrame(ArtLibrary.PlayerFall, 0f); return; }
 
         if (transform.position.y > MaxY) MaxY = transform.position.y;
 
@@ -81,22 +86,13 @@ public class PlayerClimber : MonoBehaviour
         else if (!grounded) s = rb.linearVelocity.y > 0f ? ArtLibrary.PlayerJump : ArtLibrary.PlayerFall;
         else if (Mathf.Abs(rb.linearVelocity.x) < 0.5f) s = ArtLibrary.PlayerRun[0];
         else s = ArtLibrary.PlayerRun[(int)(Time.time * 9f) % 2];
-        sr.sprite = s;
 
         squash = Vector2.Lerp(squash, Vector2.one, 10f * Time.deltaTime);
         visual.localScale = new Vector3(facing * squash.x, squash.y, 1f);
 
-        // health is shown only by body tint + flicker (no UI)
-        sr.color = P.tintByHealth
-            ? Color.Lerp(P.lowHealthTint, Color.white, Mathf.Clamp01((float)Health / Mathf.Max(1, P.maxHealth)))
-            : Color.white;
-
-        if (invulnT > 0f)
-        {
-            invulnT -= Time.deltaTime;
-            sr.enabled = ((int)(invulnT * 20f) % 2) == 0;
-        }
-        else sr.enabled = true;
+        // Damage protection keeps its timing; body sections remain readable throughout.
+        if (invulnT > 0f) invulnT -= Time.deltaTime;
+        bodyHealth.SetFrame(s, invulnT);
         if (stompGrace > 0f) stompGrace -= Time.deltaTime;
     }
 
@@ -170,15 +166,17 @@ public class PlayerClimber : MonoBehaviour
             bool hookTarget = hook.IsHooked && hook.TargetEnemy == e;
             bool above = col.bounds.min.y > h.bounds.center.y && rb.linearVelocity.y <= 3f;
 
-            if (hookTarget || above) Stomp(e);
+            if (hookTarget || above) Stomp(e, above && rb.linearVelocity.y <= 0f);
             else TakeHit();
             if (Dead) return;
         }
     }
 
-    void Stomp(Enemy e)
+    void Stomp(Enemy e, bool heal)
     {
+        if (Dead || e == null || e.IsDead) return;
         e.Kill();
+        if (heal) Health = Mathf.Min(MaxHealth, Health + 1);
         Combo++;
         float vy = jumpHeld ? P.stompBounceHeld : P.stompBounce;
         float vx = rb.linearVelocity.x;
@@ -218,6 +216,7 @@ public class PlayerClimber : MonoBehaviour
         sr.sprite = ArtLibrary.PlayerFall;
         sr.color = P.lowHealthTint;
         sr.enabled = true;
+        bodyHealth.SetFrame(ArtLibrary.PlayerFall, 0f);
         SoundManager.Play(Sfx.Death);
         Died?.Invoke();
     }
