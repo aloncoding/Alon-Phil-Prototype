@@ -9,7 +9,7 @@ public static class ArtLibrary
     {
         get
         {
-            if (mat == null) mat = new Material(Shader.Find("Sprites/Default"));
+            if (mat == null) mat = new Material(Shader.Find("Universal Render Pipeline/2D/Sprite-Unlit-Default") ?? Shader.Find("Sprites/Default"));
             return mat;
         }
     }
@@ -109,21 +109,32 @@ public static class ArtLibrary
 
     // ---------- Hook, particles ----------
     static Sprite hookHead, dot;
+    public const float HookTipOffset = 11f / 16f;
     public static Sprite HookHead
     {
         get
         {
             if (hookHead != null) return hookHead;
-            var c = new PixelCanvas(8, 8);
+            // Match the character's 16-pixel world grid and one-pixel outline.
+            var c = new PixelCanvas(14, 12);
             Color32 metal = C(220, 225, 240), dark = C(120, 125, 150);
-            c.Rect(0, 3, 3, 2, dark);
-            for (int x = 3; x < 8; x++)
-            {
-                int half = Mathf.Max(1, Mathf.RoundToInt(3.2f - (x - 3) * 0.7f));
-                c.Rect(x, 4 - half, 1, half * 2, metal);
-            }
+            c.Line(1, 5, 5, 5, dark); // short grip at the hand
+            c.Line(5, 6, 7, 8, metal);
+            c.Line(7, 8, 10, 8, metal);
+            c.Line(10, 8, 12, 7, metal);
+            c.Line(12, 7, 12, 6, metal);
+            c.Line(12, 6, 11, 6, metal); // upper curved gripping prong
+            c.Line(5, 4, 7, 2, metal);
+            c.Line(7, 2, 10, 2, metal);
+            c.Line(10, 2, 12, 3, metal);
+            c.Line(12, 3, 12, 4, metal);
+            c.Line(12, 4, 11, 4, metal); // lower curved gripping prong
+            c.Line(5, 5, 8, 5, metal);
+            c.Line(8, 5, 9, 4, metal); // shorter centre prong
+            c.Rect(4, 4, 2, 3, dark);
+            c.Line(4, 6, 5, 6, metal);
             c.Outline(Ink);
-            return hookHead = c.ToSprite(16, new Vector2(0.5f, 0.5f));
+            return hookHead = c.ToSprite(16, new Vector2(1f / 14f, 5.5f / 12f));
         }
     }
 
